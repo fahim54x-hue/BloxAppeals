@@ -69,13 +69,13 @@ export default function Home() {
   }
 
   const statusColor = (s: string) =>
-    s === "approved" ? "text-green-400" : s === "rejected" || s === "error" ? "text-red-400" : "text-yellow-400";
+    s === "approved" ? "text-green-400" : s === "rejected" || s === "error" ? "text-blue-400" : "text-yellow-400";
 
   return (
     <main className="min-h-screen bg-[#0f0f0f] text-white flex flex-col items-center px-4 py-16">
       {/* Header */}
       <div className="text-center mb-12">
-        <h1 className="text-5xl font-bold mb-3">Ro<span className="text-red-500">Appeal</span></h1>
+        <h1 className="text-5xl font-bold mb-3">Ro<span className="text-blue-500">Appeal</span></h1>
         <p className="text-gray-400 text-lg">Got an enforcement ban? We'll appeal it automatically.</p>
       </div>
 
@@ -84,39 +84,39 @@ export default function Home() {
         <div className="flex flex-col gap-1">
           <label className="text-sm text-gray-400">Roblox Username</label>
           <input type="text" value={username} onChange={e => setUsername(e.target.value)} placeholder="e.g. coolplayer123" required
-            className="bg-[#111] border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-red-500 transition" />
+            className="bg-[#111] border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 transition" />
         </div>
 
         <div className="flex flex-col gap-1">
           <label className="text-sm text-gray-400">Gmail Address</label>
           <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="your@gmail.com" required
-            className="bg-[#111] border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-red-500 transition" />
+            className="bg-[#111] border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 transition" />
         </div>
 
         <div className="flex flex-col gap-1">
           <label className="text-sm text-gray-400">
             Gmail App Password{" "}
-            <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noopener noreferrer" className="text-red-500 hover:underline text-xs">
+            <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline text-xs">
               (get one here)
             </a>
           </label>
           <input type="password" value={appPassword} onChange={e => setAppPassword(e.target.value)} placeholder="xxxx xxxx xxxx xxxx" required
-            className="bg-[#111] border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-red-500 transition" />
+            className="bg-[#111] border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 transition" />
           <p className="text-gray-600 text-xs">Not your real password. Used only to monitor Roblox reply emails.</p>
         </div>
 
         <div className="flex flex-col gap-1">
           <label className="text-sm text-gray-400">Additional Info <span className="text-gray-600">(optional)</span></label>
           <textarea value={extraInfo} onChange={e => setExtraInfo(e.target.value)} placeholder="Any extra context about your ban..." rows={4}
-            className="bg-[#111] border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-red-500 transition resize-none" />
+            className="bg-[#111] border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 transition resize-none" />
         </div>
 
         <button type="submit" disabled={loading}
-          className="bg-red-600 hover:bg-red-500 disabled:bg-red-900 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg transition">
+          className="bg-blue-600 hover:bg-blue-500 disabled:bg-blue-900 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg transition">
           {loading ? "Submitting Appeal..." : "Submit Appeal"}
         </button>
 
-        {error && <p className="text-red-400 text-sm text-center">{error}</p>}
+        {error && <p className="text-blue-400 text-sm text-center">{error}</p>}
       </form>
 
       {/* Result */}
@@ -143,9 +143,9 @@ export default function Home() {
         <h2 className="text-lg font-semibold mb-5">Check Appeal Status</h2>
         <form onSubmit={handleCheck} className="flex flex-col gap-4">
           <input type="number" value={checkId} onChange={e => setCheckId(e.target.value)} placeholder="Appeal ID" required
-            className="bg-[#111] border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-red-500 transition" />
+            className="bg-[#111] border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 transition" />
           <input type="password" value={checkPass} onChange={e => setCheckPass(e.target.value)} placeholder="Gmail App Password" required
-            className="bg-[#111] border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-red-500 transition" />
+            className="bg-[#111] border border-white/10 rounded-lg px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 transition" />
           <button type="submit" disabled={checking}
             className="bg-white/10 hover:bg-white/20 disabled:opacity-50 text-white font-semibold py-3 rounded-lg transition">
             {checking ? "Checking..." : "Check Status"}
