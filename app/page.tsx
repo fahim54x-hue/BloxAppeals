@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 const faqs = [
-  { q: "What bans does RoAppeal handle?", a: "Enforcement bans (subject to change soon)." },
+  { q: "What bans does BloxAppeal handle?", a: "Enforcement bans (subject to change soon)." },
   { q: "What is an enforcement ban?", a: 'Enforcement bans are labeled as "account linking" or "ban evasion." They happen when Roblox\'s automated system flags your account as linked to another banned account, even if it isn\'t. These false positives are extremely common.' },
   { q: "How does the appeal process work?", a: "Enter your details and we generate a unique appeal, submit it to Roblox, then monitor your inbox. If rejected, a fresh appeal goes out automatically." },
   { q: "How long does it take?", a: "No guaranteed timeline. Most successful appeals come within a few days. We keep retrying until you get a result." },
@@ -75,7 +75,7 @@ export default function Home() {
     <main className="min-h-screen bg-[#0f0f0f] text-white flex flex-col items-center px-4 py-16">
       {/* Header */}
       <div className="text-center mb-12">
-        <h1 className="text-5xl font-bold mb-3">Ro<span className="text-blue-500">Appeal</span></h1>
+        <h1 className="text-5xl font-bold mb-3">Blox<span className="text-blue-500">Appeal</span></h1>
         <p className="text-gray-400 text-lg">Got an enforcement ban? We'll appeal it automatically.</p>
       </div>
 
@@ -177,7 +177,7 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="mt-16 text-gray-600 text-sm text-center">
-        <p>RoAppeal is not affiliated with Roblox Corporation.</p>
+        <p>BloxAppeal is not affiliated with Roblox Corporation.</p>
         <p className="mt-1">
           <a href="/privacy" className="hover:text-gray-400 transition">Privacy Policy</a>
           {" · "}
