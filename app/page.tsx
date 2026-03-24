@@ -297,6 +297,20 @@ export default function Home() {
     }
   }
 
+  async function cancelAppeal(appealId: number) {
+    if (!confirm("Cancel this appeal? The cron will stop retrying it.")) return;
+    const res = await fetch("/api/cancel", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ appealId, email: dashEmail }),
+    });
+    const data = await res.json();
+    if (data.success) {
+      setAppeals(prev => prev.map(a => a.id === appealId ? { ...a, status: "cancelled" } : a));
+      showToast("Appeal cancelled.", "error");
+    }
+  }
+
   const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [globalStats, setGlobalStats] = useState({ total: 0, today: 0 });
@@ -645,7 +659,8 @@ export default function Home() {
                           <th className="text-left pb-3 pr-4">Username</th>
                           <th className="text-left pb-3 pr-4">Status</th>
                           <th className="text-left pb-3 pr-4">Attempts</th>
-                          <th className="text-left pb-3">Created</th>
+                          <th className="text-left pb-3 pr-4">Created</th>
+                          <th className="text-left pb-3">Action</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -668,6 +683,14 @@ export default function Home() {
                               </td>
                               <td className="py-3 pr-4 text-gray-400">{a.attempts}</td>
                               <td className="py-3 text-gray-500">{new Date(Number(a.created_at) * 1000).toLocaleDateString()}</td>
+                              <td className="py-3">
+                                {!["approved","cancelled"].includes(a.status) && (
+                                  <button onClick={e => { e.stopPropagation(); cancelAppeal(a.id); }}
+                                    className="text-xs text-red-400 hover:text-red-300 border border-red-400/20 px-2 py-1 rounded-lg transition">
+                                    Cancel
+                                  </button>
+                                )}
+                              </td>
                             </tr>
                             {expandedId === a.id && (
                               <tr key={`${a.id}-history`} className="bg-white/[0.02]">
@@ -715,7 +738,15 @@ export default function Home() {
                           </div>
                           <div className="flex justify-between text-xs text-gray-500 mb-2">
                             <span>{a.attempts} attempt{a.attempts !== 1 ? "s" : ""}</span>
-                            <span className="text-blue-400">Tap to see letters</span>
+                            <div className="flex gap-2 items-center">
+                              {!["approved","cancelled"].includes(a.status) && (
+                                <button onClick={e => { e.stopPropagation(); cancelAppeal(a.id); }}
+                                  className="text-red-400 hover:text-red-300 border border-red-400/20 px-2 py-0.5 rounded-lg transition">
+                                  Cancel
+                                </button>
+                              )}
+                              <span className="text-blue-400">Tap for letters</span>
+                            </div>
                           </div>
                           <StatusTimeline status={a.status} attempts={a.attempts} />
                           {expandedId === a.id && (
