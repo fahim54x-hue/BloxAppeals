@@ -16,6 +16,15 @@ export async function initDb() {
       created_at BIGINT DEFAULT EXTRACT(EPOCH FROM NOW())::BIGINT
     )
   `;
+  await sql`
+    CREATE TABLE IF NOT EXISTS appeal_letters (
+      id SERIAL PRIMARY KEY,
+      appeal_id INTEGER REFERENCES appeals(id) ON DELETE CASCADE,
+      letter TEXT NOT NULL,
+      attempt_number INTEGER NOT NULL,
+      submitted_at BIGINT DEFAULT EXTRACT(EPOCH FROM NOW())::BIGINT
+    )
+  `;
 }
 
 export default sql;

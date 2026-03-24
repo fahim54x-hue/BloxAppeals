@@ -33,6 +33,7 @@ export async function POST(req: NextRequest) {
       const submission = await submitAppeal(appeal.username, appeal.email, newAppeal);
       const newAttempts = (appeal.attempts ?? 0) + 1;
       await sql`UPDATE appeals SET status = ${submission.success ? "submitted" : "failed"}, attempts = attempts + 1, last_attempt = ${Date.now()} WHERE id = ${appealId}`;
+      await sql`INSERT INTO appeal_letters (appeal_id, letter, attempt_number, submitted_at) VALUES (${appealId}, ${newAppeal}, ${newAttempts}, ${Date.now()})`;
       await sendStatusEmail(appeal.email, appeal.username, "rejected", newAttempts);
       return NextResponse.json({
         status: "retried",

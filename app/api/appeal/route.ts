@@ -55,6 +55,12 @@ export async function POST(req: NextRequest) {
       attempts = 1, last_attempt = ${Date.now()} WHERE id = ${appealId}
     `;
 
+    // Store the letter in history
+    await sql`
+      INSERT INTO appeal_letters (appeal_id, letter, attempt_number, submitted_at)
+      VALUES (${appealId}, ${appealText}, 1, ${Date.now()})
+    `;
+
     return NextResponse.json({
       success: submission.success,
       appealId,

@@ -10,6 +10,13 @@ type Appeal = {
   created_at: number;
 };
 
+type Letter = {
+  id: number;
+  letter: string;
+  attempt_number: number;
+  submitted_at: number;
+};
+
 type Stats = {
   total: number;
   active: number;
@@ -224,6 +231,27 @@ export default function Home() {
   const [dashEmail, setDashEmail] = useState("");
   const [dashUnlocked, setDashUnlocked] = useState(false);
   const [dashLoading, setDashLoading] = useState(false);
+  const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [letters, setLetters] = useState<Record<number, Letter[]>>({});
+  const [lettersLoading, setLettersLoading] = useState<number | null>(null);
+
+  async function toggleHistory(appealId: number) {
+    if (expandedId === appealId) { setExpandedId(null); return; }
+    setExpandedId(appealId);
+    if (letters[appealId]) return; // already loaded
+    setLettersLoading(appealId);
+    try {
+      const res = await fetch(`/api/history/${appealId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: dashEmail }),
+      });
+      const data = await res.json();
+      setLetters(prev => ({ ...prev, [appealId]: data.letters ?? [] }));
+    } finally {
+      setLettersLoading(null);
+    }
+  }
 
   const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -587,23 +615,50 @@ export default function Home() {
                       </thead>
                       <tbody>
                         {appeals.map(a => (
-                          <tr key={a.id} className="border-b border-white/5 hover:bg-white/5 transition">
-                            <td className="py-3 pr-4 text-gray-500">#{a.id}</td>
-                            <td className="py-3 pr-4 font-medium">{a.username}</td>
-                            <td className="py-3 pr-4">
-                              <div>
-                                <span className={`text-xs px-2 py-1 rounded-full border ${
-                                  a.status === "approved" ? "text-green-400 bg-green-400/10 border-green-400/20" :
-                                  a.status === "failed" ? "text-red-400 bg-red-400/10 border-red-400/20" :
-                                  a.status === "submitted" ? "text-blue-400 bg-blue-400/10 border-blue-400/20" :
-                                  "text-yellow-400 bg-yellow-400/10 border-yellow-400/20"
-                                }`}>{a.status}</span>
-                                <StatusTimeline status={a.status} attempts={a.attempts} />
-                              </div>
-                            </td>
-                            <td className="py-3 pr-4 text-gray-400">{a.attempts}</td>
-                            <td className="py-3 text-gray-500">{new Date(Number(a.created_at) * 1000).toLocaleDateString()}</td>
-                          </tr>
+                          <>
+                            <tr key={a.id} onClick={() => toggleHistory(a.id)}
+                              className="border-b border-white/5 hover:bg-white/5 transition cursor-pointer">
+                              <td className="py-3 pr-4 text-gray-500">#{a.id}</td>
+                              <td className="py-3 pr-4 font-medium">{a.username}</td>
+                              <td className="py-3 pr-4">
+                                <div>
+                                  <span className={`text-xs px-2 py-1 rounded-full border ${
+                                    a.status === "approved" ? "text-green-400 bg-green-400/10 border-green-400/20" :
+                                    a.status === "failed" ? "text-red-400 bg-red-400/10 border-red-400/20" :
+                                    a.status === "submitted" ? "text-blue-400 bg-blue-400/10 border-blue-400/20" :
+                                    "text-yellow-400 bg-yellow-400/10 border-yellow-400/20"
+                                  }`}>{a.status}</span>
+                                  <StatusTimeline status={a.status} attempts={a.attempts} />
+                                </div>
+                              </td>
+                              <td className="py-3 pr-4 text-gray-400">{a.attempts}</td>
+                              <td className="py-3 text-gray-500">{new Date(Number(a.created_at) * 1000).toLocaleDateString()}</td>
+                            </tr>
+                            {expandedId === a.id && (
+                              <tr key={`${a.id}-history`} className="bg-white/[0.02]">
+                                <td colSpan={5} className="px-4 pb-4 pt-2">
+                                  <p className="text-xs text-gray-500 uppercase tracking-widest mb-3">Appeal Letter History</p>
+                                  {lettersLoading === a.id ? (
+                                    <p className="text-gray-600 text-sm">Loading...</p>
+                                  ) : (letters[a.id] ?? []).length === 0 ? (
+                                    <p className="text-gray-600 text-sm">No letters stored yet.</p>
+                                  ) : (
+                                    <div className="flex flex-col gap-4">
+                                      {(letters[a.id] ?? []).map(l => (
+                                        <div key={l.id} className="bg-[#0a0a0a] border border-white/10 rounded-xl p-4">
+                                          <div className="flex justify-between items-center mb-2">
+                                            <span className="text-xs text-blue-400 font-semibold">Attempt #{l.attempt_number}</span>
+                                            <span className="text-xs text-gray-600">{new Date(Number(l.submitted_at)).toLocaleString()}</span>
+                                          </div>
+                                          <p className="text-gray-300 text-xs whitespace-pre-wrap leading-relaxed">{l.letter}</p>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
+                                </td>
+                              </tr>
+                            )}
+                          </>
                         ))}
                       </tbody>
                     </table>

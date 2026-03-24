@@ -33,6 +33,7 @@ export async function GET(req: NextRequest) {
           UPDATE appeals SET status = ${submission.success ? "submitted" : "failed"},
           attempts = attempts + 1, last_attempt = ${Date.now()} WHERE id = ${appeal.id}
         `;
+        await sql`INSERT INTO appeal_letters (appeal_id, letter, attempt_number, submitted_at) VALUES (${appeal.id}, ${newAppeal}, ${newAttempts}, ${Date.now()})`;
         await sendStatusEmail(appeal.email, appeal.username, "rejected", newAttempts);
       }
       processed++;
