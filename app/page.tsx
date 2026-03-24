@@ -314,6 +314,7 @@ export default function Home() {
   const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [globalStats, setGlobalStats] = useState({ total: 0, today: 0 });
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
 
   useEffect(() => {
@@ -459,13 +460,31 @@ export default function Home() {
             <img src="/logo.svg" alt="BloxAppeal logo" width={32} height={32} />
             <span className="font-bold text-lg">Blox<span className="text-blue-500">Appeal</span></span>
           </div>
+          {/* Desktop nav */}
           <nav className="hidden md:flex gap-5 text-sm text-gray-400">
             <a href="#appeal" className="hover:text-white transition">Appeal</a>
             <a href="#how" className="hover:text-white transition">How it works</a>
             <a href="#dashboard" className="hover:text-white transition">Dashboard</a>
             <a href="#faq" className="hover:text-white transition">FAQ</a>
           </nav>
+          {/* Mobile hamburger */}
+          <button className="md:hidden flex flex-col gap-1.5 p-1" onClick={() => setMobileMenuOpen(o => !o)} aria-label="Menu">
+            <span className={`block w-5 h-0.5 bg-gray-400 transition-all duration-200 ${mobileMenuOpen ? "rotate-45 translate-y-2" : ""}`} />
+            <span className={`block w-5 h-0.5 bg-gray-400 transition-all duration-200 ${mobileMenuOpen ? "opacity-0" : ""}`} />
+            <span className={`block w-5 h-0.5 bg-gray-400 transition-all duration-200 ${mobileMenuOpen ? "-rotate-45 -translate-y-2" : ""}`} />
+          </button>
         </div>
+        {/* Mobile dropdown */}
+        {mobileMenuOpen && (
+          <div className="absolute top-20 left-4 right-4 bg-[#0f0f1a]/95 backdrop-blur-md border border-white/10 rounded-2xl p-4 flex flex-col gap-1 md:hidden shadow-xl">
+            {[["#appeal","Appeal"],["#how","How it works"],["#dashboard","Dashboard"],["#faq","FAQ"]].map(([href, label]) => (
+              <a key={href} href={href} onClick={() => setMobileMenuOpen(false)}
+                className="text-gray-300 hover:text-white hover:bg-white/5 px-4 py-3 rounded-xl transition text-sm font-medium">
+                {label}
+              </a>
+            ))}
+          </div>
+        )}
       </header>
 
       <div className="relative z-10 w-full flex flex-col items-center pt-12 pb-16">
@@ -584,7 +603,7 @@ export default function Home() {
               <span className={`w-2 h-2 rounded-full ${result.success ? "bg-green-500" : "bg-yellow-500"}`} />
               <p className="text-sm text-gray-300">{result.message}</p>
             </div>
-            <p className="text-gray-500 text-xs mb-4">Appeal ID: <span className="text-white font-mono bg-white/5 px-2 py-0.5 rounded">{result.appealId}</span> — save this.</p>
+            <p className="text-gray-500 text-xs mb-4">Appeal ID: <span className="text-white font-mono bg-white/5 px-2 py-0.5 rounded">{result.appealId}</span> — <a href={`/appeal/${result.appealId}`} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">view status page</a></p>
             <div className="flex justify-between items-center mb-3">
               <h2 className="text-lg font-semibold">Appeal Letter</h2>
               <button onClick={() => { navigator.clipboard.writeText(result.appealText); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
