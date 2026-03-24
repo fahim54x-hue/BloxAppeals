@@ -4,8 +4,8 @@ export async function submitAppeal(
   appealText: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    // Roblox support form submission via their API
-    const res = await fetch("https://apis.roblox.com/customer-feedback-api/v1/feedback", {
+    // Roblox uses Zendesk at customercare.roblox.com
+    const res = await fetch("https://customercare.roblox.com/api/v2/requests.json", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -14,20 +14,28 @@ export async function submitAppeal(
         "Referer": "https://www.roblox.com/support",
       },
       body: JSON.stringify({
-        username,
-        email,
-        issueType: "Account",
-        subIssueType: "Moderation",
-        message: appealText,
+        request: {
+          requester: { name: username, email },
+          subject: `Ban Appeal - ${username}`,
+          comment: { body: appealText },
+          custom_fields: [
+            { id: 360023452571, value: "account_moderation_appeal" }, // issue type
+          ],
+        },
       }),
     });
 
-    // Roblox may return various status codes — treat anything non-5xx as submitted
     if (res.status >= 500) {
-      return { success: false, error: `Roblox server error: ${res.status}` };
+      return { success: false, error: `Server error: ${res.status}` };
     }
 
-    return { success: true };
+    // 201 = created, 200 = ok
+    if (res.status === 201 || res.status === 200) {
+      return { success: true };
+    }
+
+    const body = await res.text();
+    return { success: false, error: `Unexpected status ${res.status}: ${body.slice(0, 100)}` };
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : "Unknown error" };
   }
