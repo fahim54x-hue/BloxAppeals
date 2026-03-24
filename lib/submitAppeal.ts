@@ -4,8 +4,7 @@ export async function submitAppeal(
   appealText: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    // Roblox uses Zendesk at customercare.roblox.com
-    const res = await fetch("https://customercare.roblox.com/api/v2/requests.json", {
+    const res = await fetch("https://en.help.roblox.com/api/v2/requests.json", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -16,26 +15,21 @@ export async function submitAppeal(
       body: JSON.stringify({
         request: {
           requester: { name: username, email },
-          subject: `Ban Appeal - ${username}`,
+          subject: `Appeal for ${username}`,
           comment: { body: appealText },
+          ticket_form_id: 360000080263,
           custom_fields: [
-            { id: 360023452571, value: "account_moderation_appeal" }, // issue type
+            { id: 360023452571, value: "account_moderation_appeal" },
+            { id: 360023452591, value: username },
           ],
         },
       }),
     });
 
-    if (res.status >= 500) {
-      return { success: false, error: `Server error: ${res.status}` };
-    }
-
-    // 201 = created, 200 = ok
-    if (res.status === 201 || res.status === 200) {
-      return { success: true };
-    }
-
     const body = await res.text();
-    console.error("Roblox submit response:", res.status, body.slice(0, 200));
+    console.error("Roblox submit response:", res.status, body.slice(0, 300));
+
+    if (res.status === 201 || res.status === 200) return { success: true };
     return { success: false, error: `Status ${res.status}: ${body.slice(0, 150)}` };
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : "Unknown error" };
