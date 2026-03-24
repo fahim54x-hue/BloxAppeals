@@ -48,6 +48,16 @@ export async function checkRobloxReply(
         await client.logout();
         return "rejected";
       }
+      // Ownership verification request — treat as pending, not rejected
+      if (
+        text.includes("verify ownership") ||
+        text.includes("billing email") ||
+        text.includes("verified email address added to the roblox account") ||
+        text.includes("verify you own")
+      ) {
+        await client.logout();
+        return "pending";
+      }
     }
 
     await client.logout();

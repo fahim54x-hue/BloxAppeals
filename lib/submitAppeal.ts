@@ -9,29 +9,34 @@ export async function submitAppeal(
       headers: {
         "Content-Type": "application/json",
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36",
-        "Origin": "https://www.roblox.com",
-        "Referer": "https://www.roblox.com/support",
+        "Origin": "https://en.help.roblox.com",
+        "Referer": "https://en.help.roblox.com/hc/en-us/requests/new?ticket_form_id=360000080263",
       },
       body: JSON.stringify({
         request: {
           requester: { name: username, email },
-          subject: `Appeal for ${username}`,
+          subject: `Ban Appeal - ${username}`,
           comment: { body: appealText },
           ticket_form_id: 360000080263,
           custom_fields: [
+            // Type of help: account moderation appeal
             { id: 360023452571, value: "account_moderation_appeal" },
+            // Roblox username
             { id: 21238230, value: username },
-            { id: 25328106, value: "https://www.roblox.com" },
+            // Website URL (required field)
+            { id: 25328106, value: "https://www.roblox.com/users/profile" },
+            // Platform (required by some form versions)
+            { id: 360023452491, value: "computer" },
           ],
         },
       }),
     });
 
     const body = await res.text();
-    console.error("Roblox submit response:", res.status, body.slice(0, 300));
+    console.log("Roblox submit response:", res.status, body.slice(0, 400));
 
     if (res.status === 201 || res.status === 200) return { success: true };
-    return { success: false, error: `Status ${res.status}: ${body.slice(0, 150)}` };
+    return { success: false, error: `Status ${res.status}: ${body.slice(0, 200)}` };
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : "Unknown error" };
   }
