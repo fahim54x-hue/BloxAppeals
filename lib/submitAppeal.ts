@@ -19,14 +19,16 @@ export async function submitAppeal(
           comment: { body: appealText },
           ticket_form_id: 360000080263,
           custom_fields: [
-            // Type of help: account moderation appeal
-            { id: 360023452571, value: "account_moderation_appeal" },
+            // Device: PC
+            { id: 360023452491, value: "computer" },
+            // Type of help category: Appeal a Decision
+            { id: 360023452571, value: "appeal_a_decision" },
+            // Sub-category: moderated for behavior or alt account
+            { id: 360023452611, value: "i_was_moderated_for_my_behavior_or_the_behavior_of_an_alt_account" },
             // Roblox username
             { id: 21238230, value: username },
             // Website URL (required field)
-            { id: 25328106, value: "https://www.roblox.com/users/profile" },
-            // Platform (required by some form versions)
-            { id: 360023452491, value: "computer" },
+            { id: 25328106, value: "https://www.roblox.com" },
           ],
         },
       }),
