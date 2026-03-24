@@ -15,8 +15,14 @@ export async function generateAppeal(username: string, extraInfo: string): Promi
 - Ban Type: Enforcement ban (account linking / ban evasion false positive)
 - Additional Info: ${extraInfo || "None"}
 
-Make this appeal unique. Be respectful, sincere, request a manual review.
-3-4 paragraphs, no subject line.`,
+Requirements:
+- Exactly 271 words (count carefully)
+- Respectful and sincere tone
+- Clearly state the account was flagged incorrectly by Roblox's automated system
+- Explain this is a false positive with no connection to any banned account
+- Request a manual review by a human moderator
+- Make it unique each time
+- No subject line, just the body`,
     }],
     max_tokens: 500,
   });
