@@ -35,7 +35,8 @@ export async function submitAppeal(
     }
 
     const body = await res.text();
-    return { success: false, error: `Unexpected status ${res.status}: ${body.slice(0, 100)}` };
+    console.error("Roblox submit response:", res.status, body.slice(0, 200));
+    return { success: false, error: `Status ${res.status}: ${body.slice(0, 150)}` };
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : "Unknown error" };
   }
