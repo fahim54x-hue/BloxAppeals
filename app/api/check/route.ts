@@ -3,6 +3,7 @@ import sql from "@/lib/db";
 import { checkRobloxReply } from "@/lib/checkEmail";
 import { submitAppeal } from "@/lib/submitAppeal";
 import { generateAppeal } from "@/app/api/appeal/route";
+import { sendStatusEmail } from "@/lib/sendNotification";
 
 export async function POST(req: NextRequest) {
   try {
@@ -14,6 +15,7 @@ export async function POST(req: NextRequest) {
     const rows = await sql`SELECT * FROM appeals WHERE id = ${appealId}`;
     const appeal = rows[0];
     if (!appeal) return NextResponse.json({ error: "Appeal not found" }, { status: 404 });
+
     if (appeal.status === "approved") {
       return NextResponse.json({ status: "approved", message: "Your account has been unbanned!" });
     }
@@ -22,16 +24,19 @@ export async function POST(req: NextRequest) {
 
     if (emailStatus === "approved") {
       await sql`UPDATE appeals SET status = 'approved' WHERE id = ${appealId}`;
+      await sendStatusEmail(appeal.email, appeal.username, "approved");
       return NextResponse.json({ status: "approved", message: "Your account has been unbanned!" });
     }
 
     if (emailStatus === "rejected") {
       const newAppeal = await generateAppeal(appeal.username, appeal.extra_info);
       const submission = await submitAppeal(appeal.username, appeal.email, newAppeal);
+      const newAttempts = (appeal.attempts ?? 0) + 1;
       await sql`UPDATE appeals SET status = ${submission.success ? "submitted" : "failed"}, attempts = attempts + 1, last_attempt = ${Date.now()} WHERE id = ${appealId}`;
+      await sendStatusEmail(appeal.email, appeal.username, "rejected", newAttempts);
       return NextResponse.json({
         status: "retried",
-        message: `Rejected. New appeal submitted automatically (attempt #${appeal.attempts + 1}).`,
+        message: `Rejected. New appeal submitted automatically (attempt #${newAttempts}).`,
         appealText: newAppeal,
       });
     }
