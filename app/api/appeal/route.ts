@@ -33,7 +33,7 @@ Requirements:
 export async function POST(req: NextRequest) {
   try {
     await initDb();
-    const { username, email, appPassword, extraInfo } = await req.json();
+    const { username, email, appPassword, extraInfo, appealText: providedText } = await req.json();
 
     if (!username || !email) {
       return NextResponse.json({ error: "Username and email are required" }, { status: 400 });
@@ -46,7 +46,8 @@ export async function POST(req: NextRequest) {
     `;
     const appealId = rows[0].id;
 
-    const appealText = await generateAppeal(username, extraInfo ?? "");
+    // Use provided text (from preview/edit) or generate fresh
+    const appealText = providedText || await generateAppeal(username, extraInfo ?? "");
     const submission = await submitAppeal(username, email, appealText);
 
     await sql`
