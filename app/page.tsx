@@ -244,10 +244,9 @@ export default function Home() {
         <div className="w-full max-w-3xl mb-14 flex flex-col items-center gap-10">
 
           {/* Live counters */}
-          <div className="w-full grid grid-cols-3 gap-4">
+          <div className="w-full grid grid-cols-2 gap-4">
             {[
               { label: "Appeals Submitted", value: globalStats.total, suffix: "+", color: "text-blue-400" },
-              { label: "Accounts Recovered", value: globalStats.approved, suffix: "+", color: "text-green-400" },
               { label: "Submitted Today", value: globalStats.today, suffix: "", color: "text-purple-400" },
             ].map(({ label, value, suffix, color }) => (
               <div key={label} className="bg-[#111]/80 backdrop-blur-sm border border-white/10 rounded-2xl p-5 text-center">
@@ -269,9 +268,6 @@ export default function Home() {
                     <div className="w-9 h-9 rounded-full bg-blue-600/20 border border-blue-500/20 flex items-center justify-center text-lg">{avatar}</div>
                     <div>
                       <p className="text-sm font-semibold text-white">{user}</p>
-                      <div className="flex gap-0.5 mt-0.5">
-                        {[...Array(5)].map((_, i) => <span key={i} className="text-yellow-400 text-xs">★</span>)}
-                      </div>
                     </div>
                   </div>
                   <p className="text-gray-400 text-sm leading-relaxed">"{text}"</p>
