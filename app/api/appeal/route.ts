@@ -10,19 +10,20 @@ export async function generateAppeal(username: string, extraInfo: string): Promi
     model: "llama-3.3-70b-versatile",
     messages: [{
       role: "user",
-      content: `Write a professional and polite Roblox ban appeal letter for:
+      content: `Write a Roblox ban appeal letter for:
 - Roblox Username: ${username}
 - Ban Type: Enforcement ban (account linking / ban evasion false positive)
 - Additional Info: ${extraInfo || "None"}
 
 Requirements:
-- Exactly 271 words (count carefully)
-- Respectful and sincere tone
-- Clearly state the account was flagged incorrectly by Roblox's automated system
-- Explain this is a false positive with no connection to any banned account
-- Request a manual review by a human moderator
-- Make it unique each time
-- No subject line, just the body`,
+- Exactly around 118 words
+- Start with "Dear Roblox Support,"
+- End with "Sincerely," and "[${username}]"
+- Mention the ban may have been flagged incorrectly by the automated system
+- Say any connection was unintentional
+- Apologize sincerely and ask for a review
+- Keep it short, humble and human-sounding
+- Make it unique each time`,
     }],
     max_tokens: 500,
   });
