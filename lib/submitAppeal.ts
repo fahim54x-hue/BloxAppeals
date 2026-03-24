@@ -20,7 +20,8 @@ export async function submitAppeal(
           ticket_form_id: 360000080263,
           custom_fields: [
             { id: 360023452571, value: "account_moderation_appeal" },
-            { id: 360023452591, value: username },
+            { id: 21238230, value: username },
+            { id: 25328106, value: "https://www.roblox.com" },
           ],
         },
       }),
