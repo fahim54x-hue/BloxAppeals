@@ -669,6 +669,51 @@ export default function Home() {
           )}
         </div>
 
+        {/* Why was I banned? */}
+        <div className="w-full max-w-3xl mt-14">
+          <p className="text-center text-gray-500 text-xs uppercase tracking-widest mb-8">Why was I banned?</p>
+          <div className="bg-[#111]/80 backdrop-blur-sm border border-white/10 rounded-2xl p-8 flex flex-col gap-8">
+
+            {/* Intro */}
+            <div className="flex flex-col gap-2">
+              <h3 className="text-white font-bold text-lg">Roblox's AI moderation makes mistakes — a lot.</h3>
+              <p className="text-gray-400 text-sm leading-relaxed">
+                Roblox uses an automated system to detect "account linking" and "ban evasion." The problem is it flags accounts based on shared IP addresses, devices, or login patterns — things that happen completely innocently all the time.
+              </p>
+            </div>
+
+            {/* Reasons grid */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {[
+                { icon: "🏠", title: "Shared WiFi", desc: "Playing on the same network as a banned account — a sibling, roommate, or friend — can trigger a false flag." },
+                { icon: "📱", title: "Same Device", desc: "Logging into multiple accounts on one device, or using a device that was previously used by a banned account." },
+                { icon: "🌐", title: "Same IP Address", desc: "VPNs, school networks, or public WiFi can share IPs with thousands of users — including banned ones." },
+              ].map(({ icon, title, desc }) => (
+                <div key={title} className="bg-white/5 border border-white/10 rounded-xl p-5 hover:border-blue-500/30 transition-colors duration-200">
+                  <div className="text-2xl mb-3">{icon}</div>
+                  <p className="text-white font-semibold text-sm mb-1">{title}</p>
+                  <p className="text-gray-500 text-xs leading-relaxed">{desc}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Why appealing works */}
+            <div className="border-t border-white/10 pt-6 flex flex-col gap-2">
+              <h3 className="text-white font-bold">Why appealing actually works</h3>
+              <p className="text-gray-400 text-sm leading-relaxed">
+                Roblox's support team can manually review your case and override the automated ban. A well-written appeal that clearly explains the situation — especially that any connection was unintentional — has a real chance of success. The key is persistence: many accounts get approved on the 2nd or 3rd attempt after the first is rejected.
+              </p>
+              <div className="mt-3 flex items-start gap-3 bg-blue-600/10 border border-blue-500/20 rounded-xl p-4">
+                <span className="text-blue-400 text-lg mt-0.5">💡</span>
+                <p className="text-blue-300 text-sm leading-relaxed">
+                  BloxAppeal generates a unique, human-sounding letter each time and automatically retries if rejected — so you don't have to do anything after submitting.
+                </p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
         {/* FAQ */}
         <div className="w-full max-w-xl mt-14" id="faq">
           <h2 className="text-xl font-bold mb-6">FAQ</h2>
