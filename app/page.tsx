@@ -225,7 +225,6 @@ export default function Home() {
                   <tr className="text-gray-500 text-xs uppercase border-b border-white/10">
                     <th className="text-left pb-3 pr-4">ID</th>
                     <th className="text-left pb-3 pr-4">Username</th>
-                    <th className="text-left pb-3 pr-4">Email</th>
                     <th className="text-left pb-3 pr-4">Status</th>
                     <th className="text-left pb-3 pr-4">Attempts</th>
                     <th className="text-left pb-3">Created</th>
@@ -236,7 +235,6 @@ export default function Home() {
                     <tr key={a.id} className="border-b border-white/5 hover:bg-white/5 transition">
                       <td className="py-3 pr-4 text-gray-500">#{a.id}</td>
                       <td className="py-3 pr-4 font-medium">{a.username}</td>
-                      <td className="py-3 pr-4 text-gray-400">{a.email}</td>
                       <td className="py-3 pr-4">
                         <span className={`text-xs px-2 py-1 rounded-full border ${
                           a.status === "approved" ? "text-green-400 bg-green-400/10 border-green-400/20" :
