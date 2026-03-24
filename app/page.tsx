@@ -445,7 +445,7 @@ export default function Home() {
             <img src="/logo.svg" alt="BloxAppeal logo" width={32} height={32} />
             <span className="font-bold text-lg">Blox<span className="text-blue-500">Appeal</span></span>
           </div>
-          <nav className="flex gap-5 text-sm text-gray-400">
+          <nav className="hidden md:flex gap-5 text-sm text-gray-400">
             <a href="#appeal" className="hover:text-white transition">Appeal</a>
             <a href="#how" className="hover:text-white transition">How it works</a>
             <a href="#dashboard" className="hover:text-white transition">Dashboard</a>
@@ -464,8 +464,8 @@ export default function Home() {
               <img src="/logo.svg" alt="BloxAppeal logo" width={72} height={72} className="relative" />
             </div>
           </div>
-          <h1 className="text-6xl font-extrabold mb-4 tracking-tight">Blox<span className="text-blue-500">Appeal</span></h1>
-          <p className="text-gray-400 text-lg max-w-md mx-auto">Got an enforcement ban? We'll appeal it automatically — and keep retrying until it works.</p>
+          <h1 className="text-4xl md:text-6xl font-extrabold mb-4 tracking-tight">Blox<span className="text-blue-500">Appeal</span></h1>
+          <p className="text-gray-400 text-base md:text-lg max-w-md mx-auto">Got an enforcement ban? We'll appeal it automatically — and keep retrying until it works.</p>
         </div>
 
         {/* Live counters */}
@@ -637,7 +637,8 @@ export default function Home() {
                   </div>
                 ) : (
                   <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
+                    {/* Desktop table */}
+                    <table className="hidden md:table w-full text-sm">
                       <thead>
                         <tr className="text-gray-500 text-xs uppercase border-b border-white/10">
                           <th className="text-left pb-3 pr-4">ID</th>
@@ -696,6 +697,51 @@ export default function Home() {
                         ))}
                       </tbody>
                     </table>
+                    {/* Mobile cards */}
+                    <div className="flex md:hidden flex-col gap-3">
+                      {appeals.map(a => (
+                        <div key={a.id} className="bg-white/5 border border-white/10 rounded-xl p-4 cursor-pointer" onClick={() => toggleHistory(a.id)}>
+                          <div className="flex justify-between items-start mb-2">
+                            <div>
+                              <p className="font-semibold text-white">{a.username}</p>
+                              <p className="text-gray-500 text-xs">#{a.id} · {new Date(Number(a.created_at) * 1000).toLocaleDateString()}</p>
+                            </div>
+                            <span className={`text-xs px-2 py-1 rounded-full border ${
+                              a.status === "approved" ? "text-green-400 bg-green-400/10 border-green-400/20" :
+                              a.status === "failed" ? "text-red-400 bg-red-400/10 border-red-400/20" :
+                              a.status === "submitted" ? "text-blue-400 bg-blue-400/10 border-blue-400/20" :
+                              "text-yellow-400 bg-yellow-400/10 border-yellow-400/20"
+                            }`}>{a.status}</span>
+                          </div>
+                          <div className="flex justify-between text-xs text-gray-500 mb-2">
+                            <span>{a.attempts} attempt{a.attempts !== 1 ? "s" : ""}</span>
+                            <span className="text-blue-400">Tap to see letters</span>
+                          </div>
+                          <StatusTimeline status={a.status} attempts={a.attempts} />
+                          {expandedId === a.id && (
+                            <div className="mt-3 pt-3 border-t border-white/10">
+                              {lettersLoading === a.id ? (
+                                <p className="text-gray-600 text-sm">Loading...</p>
+                              ) : (letters[a.id] ?? []).length === 0 ? (
+                                <p className="text-gray-600 text-sm">No letters stored yet.</p>
+                              ) : (
+                                <div className="flex flex-col gap-3">
+                                  {(letters[a.id] ?? []).map(l => (
+                                    <div key={l.id} className="bg-[#0a0a0a] border border-white/10 rounded-xl p-3">
+                                      <div className="flex justify-between items-center mb-2">
+                                        <span className="text-xs text-blue-400 font-semibold">Attempt #{l.attempt_number}</span>
+                                        <span className="text-xs text-gray-600">{new Date(Number(l.submitted_at)).toLocaleDateString()}</span>
+                                      </div>
+                                      <p className="text-gray-300 text-xs whitespace-pre-wrap leading-relaxed">{l.letter}</p>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
