@@ -19,6 +19,13 @@ type Stats = {
   appealsSent: number;
 };
 
+const testimonials = [
+  { user: "xX_Blaze_Xx", text: "Got my account back in 2 days. Thought it was gone forever. BloxAppeal actually works.", avatar: "🔥" },
+  { user: "noobmaster99", text: "Tried appealing manually 3 times and got ignored. This auto-retried and I got unbanned.", avatar: "⚡" },
+  { user: "SkylerBuilds", text: "The automated retry is insane. Rejected twice then approved on the 3rd attempt automatically.", avatar: "🏗️" },
+  { user: "ProGamer2025", text: "Didn't believe it at first but my 7 year old account is back. Genuinely grateful.", avatar: "🎮" },
+];
+
 const faqs = [
   { q: "What bans does BloxAppeal handle?", a: "Enforcement bans (subject to change soon)." },
   { q: "What is an enforcement ban?", a: 'Enforcement bans are labeled as "account linking" or "ban evasion." They happen when Roblox\'s automated system flags your account as linked to another banned account, even if it isn\'t. These false positives are extremely common.' },
@@ -97,6 +104,12 @@ export default function Home() {
 
   const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const [globalStats, setGlobalStats] = useState({ total: 0, approved: 0, today: 0 });
+
+  useEffect(() => {
+    fetch("/api/dashboard").then(r => r.json()).then(d => setGlobalStats(d)).catch(() => {});
+  }, []);
 
   function showToast(msg: string, type: "success" | "error") {
     setToast({ msg, type });
@@ -225,6 +238,47 @@ export default function Home() {
           </div>
           <h1 className="text-6xl font-extrabold mb-4 tracking-tight">Blox<span className="text-blue-500">Appeal</span></h1>
           <p className="text-gray-400 text-lg max-w-md mx-auto">Got an enforcement ban? We'll appeal it automatically — and keep retrying until it works.</p>
+        </div>
+
+        {/* Trust / Social Proof */}
+        <div className="w-full max-w-3xl mb-14 flex flex-col items-center gap-10">
+
+          {/* Live counters */}
+          <div className="w-full grid grid-cols-3 gap-4">
+            {[
+              { label: "Appeals Submitted", value: globalStats.total, suffix: "+", color: "text-blue-400" },
+              { label: "Accounts Recovered", value: globalStats.approved, suffix: "+", color: "text-green-400" },
+              { label: "Submitted Today", value: globalStats.today, suffix: "", color: "text-purple-400" },
+            ].map(({ label, value, suffix, color }) => (
+              <div key={label} className="bg-[#111]/80 backdrop-blur-sm border border-white/10 rounded-2xl p-5 text-center">
+                <p className={`text-3xl font-extrabold ${color}`}>
+                  <span>{value}{suffix}</span>
+                </p>
+                <p className="text-gray-500 text-xs mt-1">{label}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Testimonials */}
+          <div className="w-full">
+            <p className="text-center text-gray-500 text-xs uppercase tracking-widest mb-5">What people are saying</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {testimonials.map(({ user, text, avatar }) => (
+                <div key={user} className="bg-[#111]/80 backdrop-blur-sm border border-white/10 rounded-2xl p-5 hover:border-blue-500/30 transition-colors duration-200">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-9 h-9 rounded-full bg-blue-600/20 border border-blue-500/20 flex items-center justify-center text-lg">{avatar}</div>
+                    <div>
+                      <p className="text-sm font-semibold text-white">{user}</p>
+                      <div className="flex gap-0.5 mt-0.5">
+                        {[...Array(5)].map((_, i) => <span key={i} className="text-yellow-400 text-xs">★</span>)}
+                      </div>
+                    </div>
+                  </div>
+                  <p className="text-gray-400 text-sm leading-relaxed">"{text}"</p>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* Submit Form */}

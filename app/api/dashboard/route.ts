@@ -1,6 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
 import sql, { initDb } from "@/lib/db";
 
+// Public global stats (no email required)
+export async function GET() {
+  try {
+    await initDb();
+    const rows = await sql`
+      SELECT
+        COUNT(*) AS total,
+        COUNT(*) FILTER (WHERE status = 'approved') AS approved,
+        COUNT(*) FILTER (WHERE created_at > EXTRACT(EPOCH FROM NOW())::BIGINT - 86400) AS today
+      FROM appeals
+    `;
+    const r = rows[0];
+    return NextResponse.json({
+      total: Number(r.total),
+      approved: Number(r.approved),
+      today: Number(r.today),
+    });
+  } catch {
+    return NextResponse.json({ total: 0, approved: 0, today: 0 });
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
     await initDb();
