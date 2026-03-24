@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
 
     // Use provided text (from preview/edit) or generate fresh
     const appealText = providedText || await generateAppeal(username, extraInfo ?? "");
-    const submission = await submitAppeal(username, email, appealText);
+    const submission = await submitAppeal(username, email, appealText, appPassword ?? "");
 
     await sql`
       UPDATE appeals SET status = ${submission.success ? "submitted" : "failed"},

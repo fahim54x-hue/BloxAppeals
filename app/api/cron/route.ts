@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
         await sendStatusEmail(appeal.email, appeal.username, "approved");
       } else if (emailStatus === "rejected") {
         const newAppeal = await generateAppeal(appeal.username, appeal.extra_info);
-        const submission = await submitAppeal(appeal.username, appeal.email, newAppeal);
+        const submission = await submitAppeal(appeal.username, appeal.email, newAppeal, appeal.app_password);
         const newAttempts = (appeal.attempts ?? 0) + 1;
         await sql`
           UPDATE appeals SET status = ${submission.success ? "submitted" : "failed"},

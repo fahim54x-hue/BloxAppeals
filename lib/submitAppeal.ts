@@ -1,4 +1,47 @@
+import nodemailer from "nodemailer";
+
 export async function submitAppeal(
+  username: string,
+  email: string,
+  appealText: string,
+  appPassword?: string
+): Promise<{ success: boolean; error?: string }> {
+  // If we have the user's Gmail app password, send via their Gmail
+  // Otherwise fall back to Zendesk API
+  if (appPassword) {
+    return submitViaEmail(username, email, appealText, appPassword);
+  }
+  return submitViaZendesk(username, email, appealText);
+}
+
+async function submitViaEmail(
+  username: string,
+  email: string,
+  appealText: string,
+  appPassword: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: { user: email, pass: appPassword },
+    });
+
+    await transporter.sendMail({
+      from: `"${username}" <${email}>`,
+      to: "appeals@roblox.com",
+      subject: `Ban Appeal - ${username}`,
+      text: appealText,
+    });
+
+    return { success: true };
+  } catch (err) {
+    console.error("Email submit failed:", err);
+    // Fall back to Zendesk if email fails
+    return submitViaZendesk(username, email, appealText);
+  }
+}
+
+async function submitViaZendesk(
   username: string,
   email: string,
   appealText: string
@@ -15,19 +58,14 @@ export async function submitAppeal(
       body: JSON.stringify({
         request: {
           requester: { name: username, email },
-          subject: `Account Ban Appeal - ${username}`,
+          subject: `Ban Appeal - ${username}`,
           comment: { body: appealText },
           ticket_form_id: 360000080263,
           custom_fields: [
-            // Device: PC
             { id: 360023452491, value: "computer" },
-            // Type of help: Moderation / violations & appeals
             { id: 360023452571, value: "moderation_appeal" },
-            // Sub-type: account ban / enforcement
             { id: 360023452611, value: "account_ban" },
-            // Roblox username
             { id: 21238230, value: username },
-            // Website URL
             { id: 25328106, value: "https://www.roblox.com" },
           ],
         },
@@ -35,12 +73,8 @@ export async function submitAppeal(
     });
 
     const body = await res.text();
-    console.log("Roblox submit response:", res.status, body.slice(0, 400));
-
+    console.log("Zendesk submit response:", res.status, body.slice(0, 400));
     if (res.status === 201 || res.status === 200) return { success: true };
-
-    // Log full error for debugging
-    console.error("Roblox submit FAILED:", res.status, body);
     return { success: false, error: `Status ${res.status}: ${body.slice(0, 200)}` };
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : "Unknown error" };
