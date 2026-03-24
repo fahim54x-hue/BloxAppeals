@@ -1,6 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
+type Appeal = {
+  id: number;
+  username: string;
+  email: string;
+  status: string;
+  attempts: number;
+  created_at: number;
+};
+
+type Stats = {
+  total: number;
+  active: number;
+  approved: number;
+  rejected: number;
+  appealsSent: number;
+};
 
 const faqs = [
   { q: "What bans does BloxAppeal handle?", a: "Enforcement bans (subject to change soon)." },
@@ -26,6 +43,17 @@ export default function Home() {
   const [checkPass, setCheckPass] = useState("");
   const [checkResult, setCheckResult] = useState<{ status: string; message: string; appealText?: string } | null>(null);
   const [checking, setChecking] = useState(false);
+
+  // Dashboard
+  const [appeals, setAppeals] = useState<Appeal[]>([]);
+  const [stats, setStats] = useState<Stats>({ total: 0, active: 0, approved: 0, rejected: 0, appealsSent: 0 });
+
+  useEffect(() => {
+    fetch("/api/dashboard").then(r => r.json()).then(data => {
+      setAppeals(data.appeals ?? []);
+      setStats(data.stats ?? {});
+    });
+  }, [result]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -163,6 +191,69 @@ export default function Home() {
             )}
           </div>
         )}
+      </div>
+
+      {/* Dashboard */}
+      <div className="w-full max-w-4xl mt-12">
+        <h2 className="text-xl font-bold mb-6">Your Accounts</h2>
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+          {[
+            { label: "Total Accounts", value: stats.total, color: "text-blue-400" },
+            { label: "Active", value: stats.active, color: "text-yellow-400" },
+            { label: "Approved", value: stats.approved, color: "text-green-400" },
+            { label: "Rejected", value: stats.rejected, color: "text-red-400" },
+            { label: "Appeals Sent", value: stats.appealsSent, color: "text-purple-400" },
+          ].map(({ label, value, color }) => (
+            <div key={label} className="bg-[#1a1a1a] border border-white/10 rounded-xl p-4">
+              <p className={`text-xs font-semibold mb-1 ${color}`}>{label}</p>
+              <p className="text-3xl font-bold">{value}</p>
+            </div>
+          ))}
+        </div>
+        <div className="bg-[#1a1a1a] border border-white/10 rounded-2xl p-6">
+          <p className="text-xs text-gray-500 uppercase tracking-widest mb-4">All Accounts</p>
+          {appeals.length === 0 ? (
+            <div className="flex flex-col items-center py-12 gap-2 text-center">
+              <div className="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center text-xl">👤</div>
+              <p className="text-white font-semibold">No accounts yet</p>
+              <p className="text-gray-500 text-sm">Submit your first appeal above</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-gray-500 text-xs uppercase border-b border-white/10">
+                    <th className="text-left pb-3 pr-4">ID</th>
+                    <th className="text-left pb-3 pr-4">Username</th>
+                    <th className="text-left pb-3 pr-4">Email</th>
+                    <th className="text-left pb-3 pr-4">Status</th>
+                    <th className="text-left pb-3 pr-4">Attempts</th>
+                    <th className="text-left pb-3">Created</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {appeals.map(a => (
+                    <tr key={a.id} className="border-b border-white/5 hover:bg-white/5 transition">
+                      <td className="py-3 pr-4 text-gray-500">#{a.id}</td>
+                      <td className="py-3 pr-4 font-medium">{a.username}</td>
+                      <td className="py-3 pr-4 text-gray-400">{a.email}</td>
+                      <td className="py-3 pr-4">
+                        <span className={`text-xs px-2 py-1 rounded-full border ${
+                          a.status === "approved" ? "text-green-400 bg-green-400/10 border-green-400/20" :
+                          a.status === "failed" ? "text-red-400 bg-red-400/10 border-red-400/20" :
+                          a.status === "submitted" ? "text-blue-400 bg-blue-400/10 border-blue-400/20" :
+                          "text-yellow-400 bg-yellow-400/10 border-yellow-400/20"
+                        }`}>{a.status}</span>
+                      </td>
+                      <td className="py-3 pr-4 text-gray-400">{a.attempts}</td>
+                      <td className="py-3 text-gray-500">{new Date(Number(a.created_at) * 1000).toLocaleDateString()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* FAQ */}
