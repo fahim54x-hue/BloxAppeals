@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <path d="M50 8 L85 22 L85 52 C85 70 68 85 50 92 C32 85 15 70 15 52 L15 22 Z" fill="#2563eb"/>
+  <path d="M50 8 L85 22 L85 52 C85 70 68 85 50 92 C32 85 15 70 15 52 L15 22 Z" fill="url(#shieldGrad)"/>
+  <defs>
+    <linearGradient id="shieldGrad" x1="50" y1="8" x2="50" y2="92" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#1d4ed8"/>
+    </linearGradient>
+  </defs>
+  <text x="50" y="62" text-anchor="middle" font-family="Arial Black, sans-serif" font-weight="900" font-size="38" fill="white">B</text>
+</svg>

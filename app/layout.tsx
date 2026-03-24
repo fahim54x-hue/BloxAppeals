@@ -7,6 +7,7 @@ const geist = Geist({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "BloxAppeal — Automated Roblox Ban Appeals",
   description: "Generate a professional Roblox ban appeal letter in seconds using AI.",
+  icons: { icon: "/logo.svg" },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

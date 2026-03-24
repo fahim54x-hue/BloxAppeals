@@ -75,6 +75,9 @@ export default function Home() {
     <main className="min-h-screen bg-[#0f0f0f] text-white flex flex-col items-center px-4 py-16">
       {/* Header */}
       <div className="text-center mb-12">
+        <div className="flex justify-center mb-4">
+          <img src="/logo.svg" alt="BloxAppeal logo" width={64} height={64} />
+        </div>
         <h1 className="text-5xl font-bold mb-3">Blox<span className="text-blue-500">Appeal</span></h1>
         <p className="text-gray-400 text-lg">Got an enforcement ban? We'll appeal it automatically.</p>
       </div>
