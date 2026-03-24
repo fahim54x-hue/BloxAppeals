@@ -75,6 +75,50 @@ function StatCard({ label, value, color, active }: { label: string; value: numbe
   );
 }
 
+function ShieldLoader({ text = "Processing..." }: { text?: string }) {
+  return (
+    <div className="flex flex-col items-center justify-center gap-4 py-8">
+      <div className="relative w-16 h-16">
+        {/* Spinning ring behind shield */}
+        <div className="absolute inset-0 rounded-full border-2 border-blue-500/20 border-t-blue-500 animate-spin" />
+        {/* Shield in center */}
+        <div className="absolute inset-2 flex items-center justify-center">
+          <img src="/logo.svg" alt="loading" width={36} height={36} className="animate-pulse" />
+        </div>
+      </div>
+      <p className="text-gray-400 text-sm">{text}</p>
+    </div>
+  );
+}
+
+function ErrorBox({ message }: { message: string }) {
+  // Parse common errors into friendly messages
+  const friendly = (msg: string) => {
+    if (msg.includes("535") || msg.includes("Username and Password") || msg.includes("Invalid credentials"))
+      return "Wrong Gmail App Password. Make sure you're using an App Password, not your real Gmail password.";
+    if (msg.includes("ECONNREFUSED") || msg.includes("ETIMEDOUT") || msg.includes("network"))
+      return "Connection failed. Check your internet and try again.";
+    if (msg.includes("Username and email are required"))
+      return "Please fill in your Roblox username and Gmail address.";
+    if (msg.includes("rate limit") || msg.includes("429"))
+      return "Too many requests. Please wait a moment and try again.";
+    if (msg.includes("IMAP") || msg.includes("imap"))
+      return "Couldn't connect to Gmail. Double-check your App Password and make sure IMAP is enabled in Gmail settings.";
+    return msg;
+  };
+
+  return (
+    <div className="flex items-start gap-3 bg-red-500/10 border border-red-500/20 rounded-xl p-4">
+      <span className="text-red-400 text-lg mt-0.5">⚠️</span>
+      <div>
+        <p className="text-red-400 text-sm font-medium">Something went wrong</p>
+        <p className="text-red-300/70 text-xs mt-1">{friendly(message)}</p>
+      </div>
+    </div>
+  );
+}
+
+
 function TypewriterText({ text }: { text: string }) {
   const [displayed, setDisplayed] = useState("");
   useEffect(() => {
@@ -491,14 +535,9 @@ export default function Home() {
             </div>
             <button type="submit" disabled={previewing}
               className="bg-blue-600 hover:bg-blue-500 disabled:bg-blue-900 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg transition-all shadow-lg shadow-blue-600/30 hover:scale-[1.02] active:scale-[0.98]">
-              {previewing ? (
-                <span className="flex items-center justify-center gap-2">
-                  <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" /></svg>
-                  Generating Appeal...
-                </span>
-              ) : "Generate Appeal Letter →"}
+              {previewing ? <ShieldLoader text="Generating your appeal letter..." /> : "Generate Appeal Letter →"}
             </button>
-            {error && <p className="text-red-400 text-sm text-center">{error}</p>}
+            {error && <ErrorBox message={error} />}
           </form>
         ) : (
           /* Step 2: Preview & edit before submitting */
@@ -514,18 +553,13 @@ export default function Home() {
             </div>
             <button onClick={handleSubmit} disabled={loading}
               className="bg-blue-600 hover:bg-blue-500 disabled:bg-blue-900 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg transition-all shadow-lg shadow-blue-600/30 hover:scale-[1.02] active:scale-[0.98]">
-              {loading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" /></svg>
-                  Submitting...
-                </span>
-              ) : "Submit Appeal to Roblox"}
+              {loading ? <ShieldLoader text="Submitting appeal to Roblox..." /> : "Submit Appeal to Roblox"}
             </button>
             <button onClick={() => { setPreviewing(true); fetch("/api/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username, extraInfo }) }).then(r => r.json()).then(d => { setEditedPreview(d.appealText); setPreview(d.appealText); }).finally(() => setPreviewing(false)); }}
               disabled={previewing} className="text-sm text-gray-500 hover:text-white transition text-center">
               {previewing ? "Regenerating..." : "↺ Regenerate letter"}
             </button>
-            {error && <p className="text-red-400 text-sm text-center">{error}</p>}
+            {error && <ErrorBox message={error} />}
           </div>
         )}
 
