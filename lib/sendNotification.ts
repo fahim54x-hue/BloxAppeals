@@ -46,7 +46,7 @@ export async function sendStatusEmail(
 
   try {
     await resend.emails.send({
-      from: "BloxAppeal <notifications@bloxappeal.vercel.app>",
+      from: "BloxAppeal <onboarding@resend.dev>",
       to,
       subject: subjects[status],
       html: bodies[status],

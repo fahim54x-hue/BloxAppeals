@@ -24,7 +24,7 @@ async function submitViaResend(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const { error } = await resend.emails.send({
-      from: "BloxAppeal <appeals@bloxappeal.vercel.app>",
+      from: "BloxAppeal <onboarding@resend.dev>",
       to: "appeals@roblox.com",
       replyTo: email,
       subject: `Ban Appeal - ${username}`,
