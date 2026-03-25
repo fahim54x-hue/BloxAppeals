@@ -1,43 +1,43 @@
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function submitAppeal(
   username: string,
   email: string,
   appealText: string,
-  appPassword?: string
+  _appPassword?: string
 ): Promise<{ success: boolean; error?: string }> {
-  // If we have the user's Gmail app password, send via their Gmail
-  // Otherwise fall back to Zendesk API
-  if (appPassword) {
-    return submitViaEmail(username, email, appealText, appPassword);
+  // Try Resend first (works on Vercel, no SMTP needed)
+  if (process.env.RESEND_API_KEY) {
+    const result = await submitViaResend(username, email, appealText);
+    if (result.success) return result;
   }
+  // Fallback: Zendesk API
   return submitViaZendesk(username, email, appealText);
 }
 
-async function submitViaEmail(
+async function submitViaResend(
   username: string,
   email: string,
-  appealText: string,
-  appPassword: string
+  appealText: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: { user: email, pass: appPassword },
-    });
-
-    await transporter.sendMail({
-      from: `"${username}" <${email}>`,
+    const { error } = await resend.emails.send({
+      from: "BloxAppeal <appeals@bloxappeal.vercel.app>",
       to: "appeals@roblox.com",
+      replyTo: email,
       subject: `Ban Appeal - ${username}`,
       text: appealText,
     });
-
+    if (error) {
+      console.error("Resend submit error:", error);
+      return { success: false, error: error.message };
+    }
     return { success: true };
   } catch (err) {
-    console.error("Email submit failed:", err);
-    // Fall back to Zendesk if email fails
-    return submitViaZendesk(username, email, appealText);
+    console.error("Resend submit failed:", err);
+    return { success: false, error: err instanceof Error ? err.message : "Unknown error" };
   }
 }
 
