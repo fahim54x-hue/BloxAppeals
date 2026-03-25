@@ -1,43 +1,44 @@
-import { Resend } from "resend";
-
-const resend = new Resend(process.env.RESEND_API_KEY);
+import nodemailer from "nodemailer";
 
 export async function submitAppeal(
   username: string,
   email: string,
   appealText: string,
-  _appPassword?: string
+  appPassword?: string
 ): Promise<{ success: boolean; error?: string }> {
-  // Try Resend first (works on Vercel, no SMTP needed)
-  if (process.env.RESEND_API_KEY) {
-    const result = await submitViaResend(username, email, appealText);
-    if (result.success) return result;
+  if (appPassword) {
+    return submitViaEmail(username, email, appealText, appPassword);
   }
-  // Fallback: Zendesk API
   return submitViaZendesk(username, email, appealText);
 }
 
-async function submitViaResend(
+async function submitViaEmail(
   username: string,
   email: string,
-  appealText: string
+  appealText: string,
+  appPassword: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const { error } = await resend.emails.send({
-      from: "BloxAppeal <onboarding@resend.dev>",
+    const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
+      auth: { user: email, pass: appPassword.replace(/\s/g, "") },
+    });
+
+    await transporter.verify();
+    await transporter.sendMail({
+      from: `"${username}" <${email}>`,
       to: "appeals@roblox.com",
-      replyTo: email,
       subject: `Ban Appeal - ${username}`,
       text: appealText,
     });
-    if (error) {
-      console.error("Resend submit error:", error);
-      return { success: false, error: error.message };
-    }
+
     return { success: true };
   } catch (err) {
-    console.error("Resend submit failed:", err);
-    return { success: false, error: err instanceof Error ? err.message : "Unknown error" };
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error("Gmail SMTP failed:", msg);
+    return submitViaZendesk(username, email, appealText);
   }
 }
 
@@ -73,9 +74,9 @@ async function submitViaZendesk(
     });
 
     const body = await res.text();
-    console.log("Zendesk submit response:", res.status, body.slice(0, 400));
+    console.log("Zendesk response:", res.status, body.slice(0, 400));
     if (res.status === 201 || res.status === 200) return { success: true };
-    return { success: false, error: `Status ${res.status}: ${body.slice(0, 200)}` };
+    return { success: false, error: `Zendesk ${res.status}: ${body.slice(0, 200)}` };
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : "Unknown error" };
   }

@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
       appealText,
       message: submission.success
         ? "Appeal submitted to Roblox successfully."
-        : "Appeal generated but auto-submit failed. Copy the letter and submit manually.",
+        : `Appeal generated but auto-submit failed: ${submission.error ?? "unknown error"}. Copy the letter and submit manually.`,
     });
   } catch (err) {
     console.error(err);
