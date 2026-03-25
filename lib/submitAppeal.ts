@@ -1,6 +1,14 @@
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const transporter = nodemailer.createTransport({
+  host: "in-v3.mailjet.com",
+  port: 465,
+  secure: true,
+  auth: {
+    user: process.env.MAILJET_API_KEY,
+    pass: process.env.MAILJET_SECRET_KEY,
+  },
+});
 
 export async function submitAppeal(
   username: string,
@@ -9,23 +17,17 @@ export async function submitAppeal(
   _appPassword?: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const { error } = await resend.emails.send({
-      from: "BloxAppeal <onboarding@resend.dev>",
+    await transporter.sendMail({
+      from: `"BloxAppeal" <${process.env.MAILJET_SENDER ?? "appeals@bloxappeal.vercel.app"}>`,
       to: "appeals@roblox.com",
       replyTo: email,
       subject: `Ban Appeal - ${username}`,
       text: appealText,
     });
-
-    if (error) {
-      console.error("Resend error:", error);
-      return { success: false, error: `Resend: ${error.message}` };
-    }
-
     return { success: true };
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    console.error("Resend failed:", msg);
+    console.error("Mailjet SMTP failed:", msg);
     return { success: false, error: msg };
   }
 }
