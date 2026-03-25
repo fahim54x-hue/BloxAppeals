@@ -19,14 +19,17 @@ async function submitViaEmail(
   appPassword: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const cleanPassword = appPassword.replace(/\s/g, "");
     const transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",
       port: 465,
       secure: true,
-      auth: { user: email, pass: appPassword.replace(/\s/g, "") },
+      auth: { user: email, pass: cleanPassword },
+      connectionTimeout: 10000,
+      greetingTimeout: 10000,
+      socketTimeout: 10000,
     });
 
-    await transporter.verify();
     await transporter.sendMail({
       from: `"${username}" <${email}>`,
       to: "appeals@roblox.com",
@@ -38,7 +41,8 @@ async function submitViaEmail(
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     console.error("Gmail SMTP failed:", msg);
-    return submitViaZendesk(username, email, appealText);
+    // Don't fall back to Zendesk — return the real error so user knows what happened
+    return { success: false, error: msg };
   }
 }
 
