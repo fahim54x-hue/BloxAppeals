@@ -65,35 +65,31 @@ export async function submitAppeal(
   appealText: string,
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const res = await fetch("https://en.help.roblox.com/api/v2/requests.json", {
+    const res = await fetch("https://www.roblox.com/support/request", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124 Safari/537.36",
-        "Origin": "https://en.help.roblox.com",
-        "Referer": "https://en.help.roblox.com/hc/en-us/requests/new",
+        "Origin": "https://www.roblox.com",
+        "Referer": "https://www.roblox.com/support",
       },
       body: JSON.stringify({
-        request: {
-          requester: { name: username, email: inboxEmail },
-          subject: `Ban Appeal - ${username}`,
-          comment: { body: appealText },
-          ticket_form_id: 114094170887,
-          custom_fields: [
-            { id: 360023452491, value: "computer" },
-            { id: 360023452571, value: "appeal_a_decision" },
-            { id: 360023452611, value: "moderated_for_behavior_of_alt_account" },
-            { id: 21238230, value: username },
-            { id: 25328106, value: "https://www.roblox.com" },
-            { id: 21633601987476, value: "0" },
-          ],
-        },
+        username,
+        name: username,
+        email: inboxEmail,
+        ageCategory: "Age13AndOver",
+        deviceType: "Pc",
+        mainCategory: "AppealDecision",
+        subCategory: "AppealAccountV2",
+        message: appealText,
+        optOutCommunication: false,
       }),
     });
+
     const body = await res.text();
-    console.log("Zendesk response:", res.status, body.slice(0, 300));
-    if (res.status === 201 || res.status === 200) return { success: true };
-    return { success: false, error: `Zendesk ${res.status}: ${body.slice(0, 200)}` };
+    console.log("Roblox support response:", res.status, body.slice(0, 300));
+    if (res.status === 200 || res.status === 201) return { success: true };
+    return { success: false, error: `Roblox ${res.status}: ${body.slice(0, 200)}` };
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : "Unknown error" };
   }
