@@ -78,6 +78,14 @@ export async function submitAppeal(
           requester: { name: username, email: inboxEmail },
           subject: `Ban Appeal - ${username}`,
           comment: { body: appealText },
+          ticket_form_id: 360000080263,
+          custom_fields: [
+            { id: 360023452491, value: "computer" },
+            { id: 360023452571, value: "moderation_appeal" },
+            { id: 360023452611, value: "account_ban" },
+            { id: 21238230, value: username },
+            { id: 25328106, value: "https://www.roblox.com" },
+          ],
         },
       }),
     });
