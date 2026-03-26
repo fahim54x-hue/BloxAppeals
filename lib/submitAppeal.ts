@@ -85,6 +85,7 @@ export async function submitAppeal(
             { id: 360023452611, value: "appeal_account_moderation" },
             { id: 21238230, value: username },
             { id: 25328106, value: "https://www.roblox.com" },
+            { id: 21633601987476, value: "0" },
           ],
         },
       }),
