@@ -600,8 +600,8 @@ export default function Home() {
         {result && (
           <div className="w-full max-w-xl mt-8 bg-[#111]/80 backdrop-blur-sm rounded-2xl p-8 border border-white/10 shadow-xl shadow-blue-900/10">
             <div className="flex items-center gap-2 mb-2">
-              <span className={`w-2 h-2 rounded-full ${result.success ? "bg-green-500" : "bg-yellow-500"}`} />
-              <p className="text-sm text-gray-300">{result.message}</p>
+              <span className="w-2 h-2 rounded-full bg-green-500" />
+              <p className="text-sm text-gray-300">Appeal letter generated successfully.</p>
             </div>
             <p className="text-gray-500 text-xs mb-4">Appeal ID: <span className="text-white font-mono bg-white/5 px-2 py-0.5 rounded">{result.appealId}</span> — <a href={`/appeal/${result.appealId}`} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">view status page</a></p>
             <div className="flex justify-between items-center mb-3">
@@ -612,6 +612,13 @@ export default function Home() {
               </button>
             </div>
             <TypewriterText text={result.appealText} />
+            <a
+              href={`https://mail.google.com/mail/?view=cm&to=appeals@roblox.com&su=${encodeURIComponent(`Ban Appeal - ${username}`)}&body=${encodeURIComponent(result.appealText)}`}
+              target="_blank" rel="noopener noreferrer"
+              className="mt-5 flex items-center justify-center gap-2 w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 rounded-lg transition-all shadow-lg shadow-blue-600/30 hover:scale-[1.02] active:scale-[0.98]">
+              📧 Send via Gmail →
+            </a>
+            <p className="text-gray-600 text-xs text-center mt-2">Opens Gmail with the appeal pre-filled. Just hit Send.</p>
           </div>
         )}
 

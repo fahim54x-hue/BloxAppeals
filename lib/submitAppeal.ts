@@ -1,35 +1,36 @@
+import nodemailer from "nodemailer";
+
 export async function submitAppeal(
   username: string,
   email: string,
   appealText: string,
-  _appPassword?: string
+  appPassword?: string
 ): Promise<{ success: boolean; error?: string }> {
+  if (!appPassword) return { success: false, error: "No app password provided" };
+
   try {
-    const params = new URLSearchParams({
-      apikey: process.env.ELASTIC_EMAIL_API_KEY!,
-      from: process.env.ELASTIC_EMAIL_FROM!,
-      fromName: "BloxAppeal",
+    const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
+      auth: {
+        user: email,
+        pass: appPassword.replace(/\s/g, ""),
+      },
+    });
+
+    await transporter.sendMail({
+      from: `"${username}" <${email}>`,
       to: "appeals@roblox.com",
       replyTo: email,
       subject: `Ban Appeal - ${username}`,
-      bodyText: appealText,
-      isTransactional: "true",
+      text: appealText,
     });
 
-    const res = await fetch("https://api.elasticemail.com/v2/email/send", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: params.toString(),
-    });
-
-    const data = await res.json();
-    console.log("Elastic Email response:", JSON.stringify(data));
-
-    if (data.success) return { success: true };
-    return { success: false, error: data.error ?? "Elastic Email failed" };
+    return { success: true };
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    console.error("Elastic Email failed:", msg);
+    console.error("Gmail SMTP failed:", msg);
     return { success: false, error: msg };
   }
 }
