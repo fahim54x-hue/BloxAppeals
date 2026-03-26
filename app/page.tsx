@@ -26,7 +26,7 @@ type Stats = {
 };
 
 const steps = [
-  { icon: "✍️", title: "Enter Your Details", desc: "Your Roblox username, Gmail, and app password. Takes 30 seconds." },
+  { icon: "✍️", title: "Enter Your Details", desc: "Your Roblox username and email. Takes 30 seconds." },
   { icon: "🤖", title: "We Generate & Submit", desc: "AI writes a unique appeal letter and submits it directly to Roblox Support." },
   { icon: "📬", title: "We Monitor Your Inbox", desc: "We watch for Roblox's reply every 6 hours automatically." },
   { icon: "🔄", title: "Auto-Retry if Rejected", desc: "If rejected, a fresh appeal goes out immediately. No action needed from you." },
