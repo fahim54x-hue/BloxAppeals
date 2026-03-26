@@ -1,26 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import sql from "@/lib/db";
-import { checkRobloxReply } from "@/lib/checkEmail";
-import { submitAppeal } from "@/lib/submitAppeal";
+import { checkInboxForReply, submitAppeal } from "@/lib/submitAppeal";
 import { generateAppeal } from "@/app/api/appeal/route";
 import { sendStatusEmail } from "@/lib/sendNotification";
 
 export async function POST(req: NextRequest) {
   try {
-    const { appealId, appPassword } = await req.json();
-    if (!appealId || !appPassword) {
-      return NextResponse.json({ error: "appealId and appPassword required" }, { status: 400 });
-    }
+    const { appealId } = await req.json();
+    if (!appealId) return NextResponse.json({ error: "appealId required" }, { status: 400 });
 
     const rows = await sql`SELECT * FROM appeals WHERE id = ${appealId}`;
     const appeal = rows[0];
     if (!appeal) return NextResponse.json({ error: "Appeal not found" }, { status: 404 });
+    if (!appeal.inbox_id) return NextResponse.json({ error: "No inbox for this appeal" }, { status: 400 });
 
     if (appeal.status === "approved") {
       return NextResponse.json({ status: "approved", message: "Your account has been unbanned!" });
     }
 
-    const emailStatus = await checkRobloxReply(appeal.email, appPassword);
+    const emailStatus = await checkInboxForReply(appeal.inbox_id);
 
     if (emailStatus === "approved") {
       await sql`UPDATE appeals SET status = 'approved' WHERE id = ${appealId}`;
@@ -29,16 +27,17 @@ export async function POST(req: NextRequest) {
     }
 
     if (emailStatus === "rejected") {
-      const newAppeal = await generateAppeal(appeal.username, appeal.extra_info);
-      const submission = await submitAppeal(appeal.username, appeal.email, newAppeal, appeal.app_password);
+      const newLetter = await generateAppeal(appeal.username, appeal.extra_info ?? "");
+      const submission = await submitAppeal(appeal.username, appeal.inbox_email, newLetter);
       const newAttempts = (appeal.attempts ?? 0) + 1;
-      await sql`UPDATE appeals SET status = ${submission.success ? "submitted" : "failed"}, attempts = attempts + 1, last_attempt = ${Date.now()} WHERE id = ${appealId}`;
-      await sql`INSERT INTO appeal_letters (appeal_id, letter, attempt_number, submitted_at) VALUES (${appealId}, ${newAppeal}, ${newAttempts}, ${Date.now()})`;
+      await sql`UPDATE appeals SET status = ${submission.success ? "submitted" : "failed"},
+        attempts = attempts + 1, last_attempt = ${Date.now()} WHERE id = ${appealId}`;
+      await sql`INSERT INTO appeal_letters (appeal_id, letter, attempt_number, submitted_at)
+        VALUES (${appealId}, ${newLetter}, ${newAttempts}, ${Date.now()})`;
       await sendStatusEmail(appeal.email, appeal.username, "rejected", newAttempts);
       return NextResponse.json({
         status: "retried",
-        message: `Rejected. New appeal submitted automatically (attempt #${newAttempts}).`,
-        appealText: newAppeal,
+        message: `Rejected. New appeal submitted (attempt #${newAttempts}).`,
       });
     }
 

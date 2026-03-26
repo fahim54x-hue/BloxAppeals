@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Groq from "groq-sdk";
 import sql, { initDb } from "@/lib/db";
-import { submitAppeal } from "@/lib/submitAppeal";
+import { createInbox, submitAppeal } from "@/lib/submitAppeal";
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
@@ -33,29 +33,30 @@ Requirements:
 export async function POST(req: NextRequest) {
   try {
     await initDb();
-    const { username, email, appPassword, extraInfo, appealText: providedText } = await req.json();
+    const { username, email, extraInfo, appealText: providedText } = await req.json();
 
     if (!username || !email) {
       return NextResponse.json({ error: "Username and email are required" }, { status: 400 });
     }
 
+    // Create a MailSlurp inbox for this appeal
+    const inbox = await createInbox();
+
     const rows = await sql`
-      INSERT INTO appeals (username, email, app_password, extra_info, status, attempts, last_attempt)
-      VALUES (${username}, ${email}, ${appPassword ?? ""}, ${extraInfo ?? ""}, 'pending', 0, ${Date.now()})
+      INSERT INTO appeals (username, email, extra_info, status, attempts, last_attempt, inbox_id, inbox_email)
+      VALUES (${username}, ${email}, ${extraInfo ?? ""}, 'pending', 0, ${Date.now()}, ${inbox.id}, ${inbox.emailAddress})
       RETURNING id
     `;
     const appealId = rows[0].id;
 
-    // Use provided text (from preview/edit) or generate fresh
     const appealText = providedText || await generateAppeal(username, extraInfo ?? "");
-    const submission = await submitAppeal(username, email, appealText, appPassword ?? "");
+    const submission = await submitAppeal(username, inbox.emailAddress, appealText);
 
     await sql`
       UPDATE appeals SET status = ${submission.success ? "submitted" : "failed"},
       attempts = 1, last_attempt = ${Date.now()} WHERE id = ${appealId}
     `;
 
-    // Store the letter in history
     await sql`
       INSERT INTO appeal_letters (appeal_id, letter, attempt_number, submitted_at)
       VALUES (${appealId}, ${appealText}, 1, ${Date.now()})
@@ -67,7 +68,7 @@ export async function POST(req: NextRequest) {
       appealText,
       message: submission.success
         ? "Appeal submitted to Roblox successfully."
-        : `Appeal generated but auto-submit failed: ${submission.error ?? "unknown error"}. Copy the letter and submit manually.`,
+        : `Appeal generated but submit failed: ${submission.error ?? "unknown error"}.`,
     });
   } catch (err) {
     console.error(err);

@@ -1,55 +1,74 @@
-import nodemailer from "nodemailer";
+const MAILSLURP_API_KEY = process.env.MAILSLURP_API_KEY!;
+const MAILSLURP_BASE = "https://api.mailslurp.com";
+
+export async function createInbox(): Promise<{ id: string; emailAddress: string }> {
+  const res = await fetch(`${MAILSLURP_BASE}/inboxes`, {
+    method: "POST",
+    headers: {
+      "x-api-key": MAILSLURP_API_KEY,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ expiresIn: 2592000000 }), // 30 days
+  });
+  if (!res.ok) throw new Error(`MailSlurp create inbox failed: ${res.status}`);
+  const data = await res.json();
+  return { id: data.id, emailAddress: data.emailAddress };
+}
+
+export async function checkInboxForReply(
+  inboxId: string
+): Promise<"approved" | "rejected" | "pending"> {
+  try {
+    const res = await fetch(
+      `${MAILSLURP_BASE}/emails?inboxId=${inboxId}&size=10&sort=DESC`,
+      { headers: { "x-api-key": MAILSLURP_API_KEY } }
+    );
+    if (!res.ok) return "pending";
+    const data = await res.json();
+    const emails = data.content ?? [];
+
+    for (const email of emails) {
+      // Fetch full email body
+      const emailRes = await fetch(`${MAILSLURP_BASE}/emails/${email.id}`, {
+        headers: { "x-api-key": MAILSLURP_API_KEY },
+      });
+      if (!emailRes.ok) continue;
+      const full = await emailRes.json();
+      const text = ((full.body ?? "") + (full.subject ?? "")).toLowerCase();
+
+      if (
+        text.includes("has been restored") ||
+        text.includes("has been unbanned") ||
+        text.includes("appeal has been approved") ||
+        text.includes("account has been unlocked") ||
+        text.includes("moderation has been lifted") ||
+        text.includes("your account is now") ||
+        text.includes("reinstated")
+      ) return "approved";
+
+      if (
+        text.includes("will not be reversed") ||
+        text.includes("appeal has been denied") ||
+        text.includes("moderation will stand") ||
+        text.includes("unable to reverse") ||
+        text.includes("decision is final") ||
+        text.includes("not eligible for an appeal") ||
+        text.includes("does not qualify")
+      ) return "rejected";
+    }
+    return "pending";
+  } catch (err) {
+    console.error("MailSlurp check failed:", err);
+    return "pending";
+  }
+}
 
 export async function submitAppeal(
   username: string,
-  email: string,
+  inboxEmail: string,
   appealText: string,
-  appPassword?: string
-): Promise<{ success: boolean; error?: string }> {
-  // Try Gmail SMTP first
-  if (appPassword) {
-    const result = await submitViaGmail(username, email, appealText, appPassword);
-    if (result.success) return result;
-    console.log("Gmail SMTP failed, trying Zendesk:", result.error);
-  }
-  return submitViaZendesk(username, email, appealText);
-}
-
-async function submitViaGmail(
-  username: string,
-  email: string,
-  appealText: string,
-  appPassword: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 587,
-      secure: false,
-      requireTLS: true,
-      auth: { user: email, pass: appPassword.replace(/\s/g, "") },
-      tls: { rejectUnauthorized: false },
-    });
-    await transporter.sendMail({
-      from: `"${username}" <${email}>`,
-      to: "appeals@roblox.com",
-      subject: `Ban Appeal - ${username}`,
-      text: appealText,
-    });
-    return { success: true };
-  } catch (err) {
-    return { success: false, error: err instanceof Error ? err.message : String(err) };
-  }
-}
-
-async function submitViaZendesk(
-  username: string,
-  email: string,
-  appealText: string
-): Promise<{ success: boolean; error?: string }> {
-  try {
-    // Use the moderation appeal form (ticket_form_id: 360000080263)
-    // with only the required fields to avoid billing routing
     const res = await fetch("https://en.help.roblox.com/api/v2/requests.json", {
       method: "POST",
       headers: {
@@ -60,7 +79,7 @@ async function submitViaZendesk(
       },
       body: JSON.stringify({
         request: {
-          requester: { name: username, email },
+          requester: { name: username, email: inboxEmail },
           subject: `Ban Appeal - ${username}`,
           comment: { body: appealText },
         },
@@ -68,7 +87,7 @@ async function submitViaZendesk(
     });
 
     const body = await res.text();
-    console.log("Zendesk response:", res.status, body.slice(0, 400));
+    console.log("Zendesk response:", res.status, body.slice(0, 300));
     if (res.status === 201 || res.status === 200) return { success: true };
     return { success: false, error: `Zendesk ${res.status}: ${body.slice(0, 200)}` };
   } catch (err) {

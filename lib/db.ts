@@ -13,9 +13,13 @@ export async function initDb() {
       status TEXT DEFAULT 'pending',
       attempts INTEGER DEFAULT 0,
       last_attempt BIGINT,
-      created_at BIGINT DEFAULT EXTRACT(EPOCH FROM NOW())::BIGINT
+      created_at BIGINT DEFAULT EXTRACT(EPOCH FROM NOW())::BIGINT,
+      inbox_id TEXT,
+      inbox_email TEXT
     )
   `;
+  await sql`ALTER TABLE appeals ADD COLUMN IF NOT EXISTS inbox_id TEXT`;
+  await sql`ALTER TABLE appeals ADD COLUMN IF NOT EXISTS inbox_email TEXT`;
   await sql`
     CREATE TABLE IF NOT EXISTS appeal_letters (
       id SERIAL PRIMARY KEY,
