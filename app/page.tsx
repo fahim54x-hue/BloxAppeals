@@ -608,13 +608,6 @@ export default function Home() {
               </button>
             </div>
             <TypewriterText text={result.appealText} />
-            <a
-              href={`https://mail.google.com/mail/?view=cm&to=appeals@roblox.com&su=${encodeURIComponent(`Ban Appeal - ${username}`)}&body=${encodeURIComponent(result.appealText)}`}
-              target="_blank" rel="noopener noreferrer"
-              className="mt-5 flex items-center justify-center gap-2 w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 rounded-lg transition-all shadow-lg shadow-blue-600/30 hover:scale-[1.02] active:scale-[0.98]">
-              📧 Send via Gmail →
-            </a>
-            <p className="text-gray-600 text-xs text-center mt-2">Opens Gmail with the appeal pre-filled. Just hit Send.</p>
           </div>
         )}
 
