@@ -556,7 +556,11 @@ export default function Home() {
             <div className="flex flex-col gap-1">
               <label className="text-sm text-gray-400">Gmail Address</label>
               <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="your@gmail.com" required className={inputCls} />
-              <p className="text-gray-600 text-xs">We'll notify you here when your appeal gets a response.</p>
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-sm text-gray-400">Gmail App Password <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline text-xs">(get one here)</a></label>
+              <input type="password" value={appPassword} onChange={e => setAppPassword(e.target.value)} placeholder="xxxx xxxx xxxx xxxx" required className={inputCls} />
+              <p className="text-gray-600 text-xs">Not your real password. Used to send and monitor your appeal.</p>
             </div>
             <div className="flex flex-col gap-1">
               <label className="text-sm text-gray-400">Additional Info <span className="text-gray-600">(optional)</span></label>
@@ -596,8 +600,8 @@ export default function Home() {
         {result && (
           <div className="w-full max-w-xl mt-8 bg-[#111]/80 backdrop-blur-sm rounded-2xl p-8 border border-white/10 shadow-xl shadow-blue-900/10">
             <div className="flex items-center gap-2 mb-2">
-              <span className="w-2 h-2 rounded-full bg-green-500" />
-              <p className="text-sm text-gray-300">Appeal letter generated. Send it to Roblox below.</p>
+              <span className={`w-2 h-2 rounded-full ${result.success ? "bg-green-500" : "bg-yellow-500"}`} />
+              <p className="text-sm text-gray-300">{result.message}</p>
             </div>
             <p className="text-gray-500 text-xs mb-4">Appeal ID: <span className="text-white font-mono bg-white/5 px-2 py-0.5 rounded">{result.appealId}</span> — <a href={`/appeal/${result.appealId}`} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">view status page</a></p>
             <div className="flex justify-between items-center mb-3">

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import sql from "@/lib/db";
-import { checkInboxForReply, submitAppeal } from "@/lib/submitAppeal";
+import { checkRobloxReply } from "@/lib/checkEmail";
+import { submitAppeal } from "@/lib/submitAppeal";
 import { generateAppeal } from "@/app/api/appeal/route";
 import { sendStatusEmail } from "@/lib/sendNotification";
 
@@ -11,16 +12,16 @@ export async function GET(req: NextRequest) {
   }
 
   const appeals = await sql`
-    SELECT * FROM appeals WHERE status NOT IN ('approved', 'cancelled') AND inbox_id IS NOT NULL
+    SELECT * FROM appeals WHERE status NOT IN ('approved', 'cancelled')
   `;
 
   const RETRY_DELAY_MS = 20 * 60 * 60 * 1000;
   let processed = 0;
 
   for (const appeal of appeals) {
+    if (!appeal.app_password) continue;
     try {
-      const emailStatus = await checkInboxForReply(appeal.inbox_id);
-
+      const emailStatus = await checkRobloxReply(appeal.email, appeal.app_password);
       if (emailStatus === "approved") {
         await sql`UPDATE appeals SET status = 'approved' WHERE id = ${appeal.id}`;
         await sendStatusEmail(appeal.email, appeal.username, "approved");
@@ -28,7 +29,7 @@ export async function GET(req: NextRequest) {
         const lastAttempt = Number(appeal.last_attempt ?? 0);
         if (Date.now() - lastAttempt < RETRY_DELAY_MS) { processed++; continue; }
         const newLetter = await generateAppeal(appeal.username, appeal.extra_info ?? "");
-        const submission = await submitAppeal(appeal.username, appeal.inbox_email, newLetter);
+        const submission = await submitAppeal(appeal.username, appeal.email, newLetter, appeal.app_password);
         const newAttempts = (appeal.attempts ?? 0) + 1;
         await sql`UPDATE appeals SET status = ${submission.success ? "submitted" : "failed"},
           attempts = attempts + 1, last_attempt = ${Date.now()} WHERE id = ${appeal.id}`;
