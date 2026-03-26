@@ -78,7 +78,7 @@ export async function submitAppeal(
           requester: { name: username, email: inboxEmail },
           subject: `Ban Appeal - ${username}`,
           comment: { body: appealText },
-          ticket_form_id: 360000080263,
+          ticket_form_id: 114094170887,
           custom_fields: [
             { id: 360023452491, value: "computer" },
             { id: 360023452571, value: "account_moderation" },
