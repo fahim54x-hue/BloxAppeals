@@ -65,15 +65,27 @@ export async function submitAppeal(
   appealText: string,
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    // Step 1: Get XSRF token
-    const tokenRes = await fetch("https://auth.roblox.com/v2/logout", {
-      method: "POST",
+    // Step 1: Get XSRF token from support page
+    const pageRes = await fetch("https://www.roblox.com/support", {
       headers: {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124 Safari/537.36",
+        "Accept": "text/html",
       },
     });
+    // Extract CSRF token from page cookies
+    const setCookie = pageRes.headers.get("set-cookie") ?? "";
+    const csrfMatch = setCookie.match(/GuestData=([^;]+)/);
+    // Also try getting it from a POST to get the token header
+    const tokenRes = await fetch("https://www.roblox.com/support/request", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124 Safari/537.36",
+      },
+      body: "{}",
+    });
     const xsrfToken = tokenRes.headers.get("x-csrf-token") ?? "";
-    console.log("XSRF token:", xsrfToken);
+    console.log("XSRF token:", xsrfToken, "cookie match:", csrfMatch?.[1]?.slice(0, 20));
 
     // Step 2: Submit appeal
     const res = await fetch("https://www.roblox.com/support/request", {
