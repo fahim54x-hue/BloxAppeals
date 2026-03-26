@@ -24,9 +24,11 @@ async function submitViaGmail(
   try {
     const transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",
-      port: 465,
-      secure: true,
+      port: 587,
+      secure: false,
+      requireTLS: true,
       auth: { user: email, pass: appPassword.replace(/\s/g, "") },
+      tls: { rejectUnauthorized: false },
     });
     await transporter.sendMail({
       from: `"${username}" <${email}>`,
