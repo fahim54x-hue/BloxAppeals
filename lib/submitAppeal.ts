@@ -81,8 +81,8 @@ export async function submitAppeal(
           ticket_form_id: 114094170887,
           custom_fields: [
             { id: 360023452491, value: "computer" },
-            { id: 360023452571, value: "account_moderation" },
-            { id: 360023452611, value: "appeal_account_moderation" },
+            { id: 360023452571, value: "appeal_a_decision" },
+            { id: 360023452611, value: "moderated_for_behavior_of_alt_account" },
             { id: 21238230, value: username },
             { id: 25328106, value: "https://www.roblox.com" },
             { id: 21633601987476, value: "0" },
