@@ -612,6 +612,10 @@ export default function Home() {
               </button>
             </div>
             <TypewriterText text={result.appealText} />
+            <button onClick={() => { setResult(null); setPreview(null); setUsername(""); setEmail(""); setAppPassword(""); setExtraInfo(""); }}
+              className="mt-4 text-sm text-gray-500 hover:text-white transition text-center">
+              ↺ Submit another appeal
+            </button>
           </div>
         )}
 
