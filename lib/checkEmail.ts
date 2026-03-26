@@ -10,6 +10,9 @@ export async function checkRobloxReply(
     secure: true,
     auth: { user: email, pass: appPassword },
     logger: false,
+    tls: { rejectUnauthorized: false },
+    socketTimeout: 10000,
+    connectionTimeout: 10000,
   });
 
   try {
