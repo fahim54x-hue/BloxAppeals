@@ -556,7 +556,11 @@ export default function Home() {
             <div className="flex flex-col gap-1">
               <label className="text-sm text-gray-400">Gmail Address</label>
               <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="your@gmail.com" required className={inputCls} />
-              <p className="text-gray-600 text-xs">We'll notify you here when your appeal gets a response.</p>
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-sm text-gray-400">Gmail App Password <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline text-xs">(get one here)</a></label>
+              <input type="password" value={appPassword} onChange={e => setAppPassword(e.target.value)} placeholder="xxxx xxxx xxxx xxxx" required className={inputCls} />
+              <p className="text-gray-600 text-xs">Not your real password. Used only to monitor Roblox reply emails.</p>
             </div>
             <div className="flex flex-col gap-1">
               <label className="text-sm text-gray-400">Additional Info <span className="text-gray-600">(optional)</span></label>

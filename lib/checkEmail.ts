@@ -17,8 +17,8 @@ export async function checkRobloxReply(
     await client.mailboxOpen("INBOX");
 
     const messages = await client.search({
-      from: "roblox.com",
-      since: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000), // last 14 days
+      from: "no-reply@roblox.com",
+      since: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000),
     });
 
     if (!messages || messages.length === 0) {

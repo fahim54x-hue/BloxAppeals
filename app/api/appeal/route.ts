@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Groq from "groq-sdk";
 import sql, { initDb } from "@/lib/db";
-import { createInbox, submitAppeal } from "@/lib/submitAppeal";
+import { submitAppeal } from "@/lib/submitAppeal";
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
@@ -33,24 +33,21 @@ Requirements:
 export async function POST(req: NextRequest) {
   try {
     await initDb();
-    const { username, email, extraInfo, appealText: providedText } = await req.json();
+    const { username, email, appPassword, extraInfo, appealText: providedText } = await req.json();
 
     if (!username || !email) {
       return NextResponse.json({ error: "Username and email are required" }, { status: 400 });
     }
 
-    // Create a MailSlurp inbox for this appeal
-    const inbox = await createInbox();
-
     const rows = await sql`
-      INSERT INTO appeals (username, email, extra_info, status, attempts, last_attempt, inbox_id, inbox_email)
-      VALUES (${username}, ${email}, ${extraInfo ?? ""}, 'pending', 0, ${Date.now()}, ${inbox.id}, ${inbox.emailAddress})
+      INSERT INTO appeals (username, email, app_password, extra_info, status, attempts, last_attempt)
+      VALUES (${username}, ${email}, ${appPassword ?? ""}, ${extraInfo ?? ""}, 'pending', 0, ${Date.now()})
       RETURNING id
     `;
     const appealId = rows[0].id;
 
     const appealText = providedText || await generateAppeal(username, extraInfo ?? "");
-    const submission = await submitAppeal(username, inbox.emailAddress, appealText);
+    const submission = await submitAppeal(username, email, appealText);
 
     await sql`
       UPDATE appeals SET status = ${submission.success ? "submitted" : "failed"},
