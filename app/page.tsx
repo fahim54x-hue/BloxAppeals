@@ -601,7 +601,7 @@ export default function Home() {
           <div className="w-full max-w-xl mt-8 bg-[#111]/80 backdrop-blur-sm rounded-2xl p-8 border border-white/10 shadow-xl shadow-blue-900/10">
             <div className="flex items-center gap-2 mb-2">
               <span className="w-2 h-2 rounded-full bg-green-500" />
-              <p className="text-sm text-gray-300">Appeal letter generated successfully.</p>
+              <p className="text-sm text-gray-300">{result.success ? "Appeal submitted to Roblox successfully." : result.message}</p>
             </div>
             <p className="text-gray-500 text-xs mb-4">Appeal ID: <span className="text-white font-mono bg-white/5 px-2 py-0.5 rounded">{result.appealId}</span> — <a href={`/appeal/${result.appealId}`} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">view status page</a></p>
             <div className="flex justify-between items-center mb-3">
