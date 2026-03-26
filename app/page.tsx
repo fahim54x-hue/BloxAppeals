@@ -388,7 +388,7 @@ export default function Home() {
       const res = await fetch("/api/check", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ appealId: Number(checkId), appPassword: checkPass }),
+        body: JSON.stringify({ appealId: Number(checkId) }),
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error);
@@ -556,11 +556,7 @@ export default function Home() {
             <div className="flex flex-col gap-1">
               <label className="text-sm text-gray-400">Gmail Address</label>
               <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="your@gmail.com" required className={inputCls} />
-            </div>
-            <div className="flex flex-col gap-1">
-              <label className="text-sm text-gray-400">Gmail App Password <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline text-xs">(get one here)</a></label>
-              <input type="password" value={appPassword} onChange={e => setAppPassword(e.target.value)} placeholder="xxxx xxxx xxxx xxxx" required className={inputCls} />
-              <p className="text-gray-600 text-xs">Not your real password. Used only to monitor Roblox reply emails.</p>
+              <p className="text-gray-600 text-xs">We'll notify you here when your appeal gets a response.</p>
             </div>
             <div className="flex flex-col gap-1">
               <label className="text-sm text-gray-400">Additional Info <span className="text-gray-600">(optional)</span></label>
@@ -624,7 +620,6 @@ export default function Home() {
           <h2 className="text-lg font-semibold mb-5">Check Appeal Status</h2>
           <form onSubmit={handleCheck} className="flex flex-col gap-4">
             <input type="number" value={checkId} onChange={e => setCheckId(e.target.value)} placeholder="Appeal ID" required className={inputCls} />
-            <input type="password" value={checkPass} onChange={e => setCheckPass(e.target.value)} placeholder="Gmail App Password" required className={inputCls} />
             <button type="submit" disabled={checking}
               className="bg-white/10 hover:bg-white/20 disabled:opacity-50 text-white font-semibold py-3 rounded-lg transition-all hover:scale-[1.02] active:scale-[0.98]">
               {checking ? "Checking..." : "Check Status"}
