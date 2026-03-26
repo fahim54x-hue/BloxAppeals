@@ -546,7 +546,7 @@ export default function Home() {
         </div>
 
         {/* Submit Form — Step 1: fill details + preview */}
-        {!preview ? (
+        {!result && (!preview ? (
           <form onSubmit={handlePreview} className="w-full max-w-xl bg-[#111]/80 backdrop-blur-sm rounded-2xl p-8 flex flex-col gap-5 border border-white/10 shadow-xl shadow-blue-900/10">
             <p className="text-xs text-gray-500 uppercase tracking-widest">Step 1 — Your Details</p>
             <div className="flex flex-col gap-1">
@@ -594,7 +594,7 @@ export default function Home() {
             </button>
             {error && <ErrorBox message={error} />}
           </div>
-        )}
+        ))}
 
         {/* Result */}
         {result && (
