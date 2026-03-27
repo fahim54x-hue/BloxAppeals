@@ -554,14 +554,11 @@ export default function Home() {
               <input type="text" value={username} onChange={e => setUsername(e.target.value)} placeholder="e.g. coolplayer123" required className={inputCls} />
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-sm text-gray-400">Gmail Address</label>
-              <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="your@gmail.com" required className={inputCls} />
+              <label className="text-sm text-gray-400">Roblox Account Email</label>
+              <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="email linked to your Roblox account" required className={inputCls} />
+              <p className="text-gray-600 text-xs">The email address linked to your banned Roblox account.</p>
             </div>
-            <div className="flex flex-col gap-1">
-              <label className="text-sm text-gray-400">Gmail App Password <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline text-xs">(get one here)</a></label>
-              <input type="password" value={appPassword} onChange={e => setAppPassword(e.target.value)} placeholder="xxxx xxxx xxxx xxxx" required className={inputCls} />
-              <p className="text-gray-600 text-xs">Not your real password. Used to send and monitor your appeal.</p>
-            </div>
+
             <div className="flex flex-col gap-1">
               <label className="text-sm text-gray-400">Additional Info <span className="text-gray-600">(optional)</span></label>
               <textarea value={extraInfo} onChange={e => setExtraInfo(e.target.value)} placeholder="Any extra context about your ban..." rows={3} className={`${inputCls} resize-none`} />
@@ -612,15 +609,8 @@ export default function Home() {
               </button>
             </div>
             <TypewriterText text={result.appealText} />
-            <a
-              href={`https://mail.google.com/mail/?view=cm&to=appeals@roblox.com&su=${encodeURIComponent(`Ban Appeal - ${username}`)}&body=${encodeURIComponent(result.appealText)}`}
-              target="_blank" rel="noopener noreferrer"
-              className="mt-5 flex items-center justify-center gap-2 w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 rounded-lg transition-all shadow-lg shadow-blue-600/30 hover:scale-[1.02] active:scale-[0.98]">
-              📧 Send via Gmail →
-            </a>
-            <p className="text-gray-600 text-xs text-center mt-2">Opens Gmail pre-filled. Just hit Send — goes directly to Roblox appeals team.</p>
             <button onClick={() => { setResult(null); setPreview(null); setUsername(""); setEmail(""); setAppPassword(""); setExtraInfo(""); }}
-              className="mt-3 text-sm text-gray-500 hover:text-white transition text-center w-full">
+              className="mt-4 text-sm text-gray-500 hover:text-white transition text-center w-full">
               ↺ Submit another appeal
             </button>
           </div>
